@@ -5,8 +5,9 @@ session_start();
 $user = '';
 $codeblock = null;
 $numbersArr = array();
-$ns_access = 'nss_HdB9NssBCflhJAhYdqGB72Gt5rE13eYfC0IQY9XvQe986iJF8d597f3b';
-$numbersHTML = "";
+$ns_access = '';
+global $numbersHTML;
+$_SESSION['numbersHTML'] = "";
 
 
 
@@ -79,23 +80,24 @@ function loadNumbers($domain) {
     }
 
     curl_close($numbersCURL);
-    listNumbers($numbersArr, $numbersHTML);
+    // listNumbers($numbersArr);
+    $_SESSION['CIDNumbers'] = $numbersArr;
 };
 
 // TODO: refactor? still not listing any numbers at this time and not sure how to fix. var_dump is pulling numbers correctly but numbersHTML does not show in dropdown
-function listNumbers($arr, &$numbersHTML) {
+function listNumbers($arr) {
     // var_dump($arr);
     // var_dump($numbersHTML);
 
 
 
-
     foreach ($arr as $number) {
-        $numbersHTML .= '<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ', ' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>';
+        // $numbersHTML .= '<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ', ' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>';
+        echo ('<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ', ' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>');
     }
-
     // var_dump($numbersHTML);
 
+}
 
 
 ?>
@@ -120,12 +122,12 @@ function listNumbers($arr, &$numbersHTML) {
                     <div class="card-text">
                         <p>Caller ID Number: </p>
                         <div class="btn-group">
-                            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="numberDropdown"><? echo htmlentities($_SESSION['caller-id-number'])  ?></button>
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="numberDropdown"><?php echo htmlentities($_SESSION['caller-id-number'])  ?></button>
                             <ul class="dropdown-menu">
-                                <? 
+                                <?php 
 
                                 // TODO:: FIGURE OUT A WAY TO LIST ALL NUMBERS AQUI
-                                    echo $numbersHTML; }
+                                    listNumbers($_SESSION['CIDNumbers']);
                                 ?>
                             </ul>
                         </div>

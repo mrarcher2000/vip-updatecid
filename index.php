@@ -8,14 +8,19 @@ $numbersArr = array();
 $ns_access = '';
 global $numbersHTML;
 $_SESSION['numbersHTML'] = "";
-
+$_SESSION['access'] = "nss_HdB9NssBCflhJAhYdqGB72Gt5rE13eYfC0IQY9XvQe986iJF8d597f3b";
 
 
 
 // CHECK FOR nsToken IN URL AND PULL USER'S DOMAIN
-if (isset($_REQUEST['nsToken'])) {
-    $ns_access = $_REQUEST['nsToken'];
-    $_SESSION["access"] = $_REQUEST['nsToken'];
+if (isset($_REQUEST['cookiename'])) {
+    $cookies = explode("-", $_REQUEST['cookiename']);
+    $domain = $cookies[1];
+    $user = $cookies[2];
+    $ns_access = $_SESSION['access'];
+    
+    // $ns_access = $_REQUEST['nsToken'];
+    // $_SESSION["access"] = $_REQUEST['nsToken'];
 
     $curl = curl_init();
     $headers = array(
@@ -23,12 +28,16 @@ if (isset($_REQUEST['nsToken'])) {
         "Accept: application/json"
     );
 
-    curl_setopt($curl, CURLOPT_URL, 'http://crexendo-core-032-mci.crexendo.ucaas.run/ns-api/v2/domains/~/users/~');
+
+    curl_setopt($curl, CURLOPT_URL, "http://crexendo-core-032-mci.crexendo.ucaas.run/ns-api/v2/domains/$domain/users/$user");
+    error_log("Sending request to http://crexendo-core-032-mci.crexendo.ucaas.run/ns-api/v2/domains/$domain/users/$user");
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
     $response = curl_exec($curl);
     $decodedResponse = json_decode($response, true);
+
+    // error_log($decodedResponse);
     // $codeblock = $decodedResponse;
     $_SESSION["domain"] = $decodedResponse['domain'];
     $_SESSION["user"] = $decodedResponse["user"];
@@ -36,6 +45,8 @@ if (isset($_REQUEST['nsToken'])) {
     $_SESSION["caller-id-name"] = $decodedResponse["caller-id-name"];
     $_SESSION["login-username"] = $decodedResponse["login-username"];
 
+
+    // error_log($_SESSION);
     // var_dump($_SESSION);
 
     curl_close($curl);
@@ -93,7 +104,7 @@ function listNumbers($arr) {
 
     foreach ($arr as $number) {
         // $numbersHTML .= '<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ', ' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>';
-        echo ('<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ', ' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>');
+        echo ('<li onclick="updateNumber('. '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>');
     }
     // var_dump($numbersHTML);
 

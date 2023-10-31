@@ -15,7 +15,7 @@ numberDropdown.addEventListener("click", function(e){
 
 const updateNumber = async function (user, name, number) {
     console.log("Update pending..." + `\n${user}, ${name}, ${number}`);
-    let response = await fetch("http://crexendo-core-032-mci.crexendo.ucaas.run/ns-api/?object=subscriber&action=update", {
+    let response = await fetch("https://crexendo-core-031-mci.crexendo.ucaas.run/ns-api/?object=subscriber&action=update", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

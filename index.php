@@ -29,8 +29,8 @@ if (isset($_REQUEST['cookiename'])) {
     );
 
 
-    curl_setopt($curl, CURLOPT_URL, "http://crexendo-core-032-mci.crexendo.ucaas.run/ns-api/v2/domains/$domain/users/$user");
-    error_log("Sending request to http://crexendo-core-032-mci.crexendo.ucaas.run/ns-api/v2/domains/$domain/users/$user");
+    curl_setopt($curl, CURLOPT_URL, "https://crexendo-core-031-mci.crexendo.ucaas.run/ns-api/v2/domains/$domain/users/$user");
+    error_log("Sending request to https://crexendo-core-031-mci.crexendo.ucaas.run/ns-api/v2/domains/$domain/users/$user");
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
@@ -69,7 +69,7 @@ function loadNumbers($domain) {
         "Accept: application/json"
     );
 
-    curl_setopt($numbersCURL, CURLOPT_URL, "http://crexendo-core-032-mci.crexendo.ucaas.run/ns-api/v2/domains/".$domain."/phonenumbers");
+    curl_setopt($numbersCURL, CURLOPT_URL, "https://crexendo-core-031-mci.crexendo.ucaas.run/ns-api/v2/domains/".$domain."/phonenumbers");
     curl_setopt($numbersCURL, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($numbersCURL, CURLOPT_RETURNTRANSFER, true);
 

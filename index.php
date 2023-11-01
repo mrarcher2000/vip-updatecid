@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+$env = parse_ini_file('.env');
+
 
 $user = '';
 $codeblock = null;
@@ -8,7 +10,8 @@ $numbersArr = array();
 $ns_access = '';
 global $numbersHTML;
 $_SESSION['numbersHTML'] = "";
-$_SESSION['access'] = "nss_HdB9NssBCflhJAhYdqGB72Gt5rE13eYfC0IQY9XvQe986iJF8d597f3b";
+$_SESSION['access'] = $env['ACCESS'];
+echo($_SESSION['access']);
 
 
 
@@ -104,7 +107,7 @@ function listNumbers($arr) {
 
     foreach ($arr as $number) {
         // $numbersHTML .= '<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ', ' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>';
-        echo ('<li onclick="updateNumber('. '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>');
+        echo ('<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ',' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>');
     }
     // var_dump($numbersHTML);
 

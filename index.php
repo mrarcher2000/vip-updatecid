@@ -11,8 +11,6 @@ $ns_access = '';
 global $numbersHTML;
 $_SESSION['numbersHTML'] = "";
 $_SESSION['access'] = $env['ACCESS'];
-echo($_SESSION['access']);
-
 
 
 // CHECK FOR nsToken IN URL AND PULL USER'S DOMAIN

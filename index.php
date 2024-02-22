@@ -1,21 +1,11 @@
 <?php
 session_start();
 
-
-// --- CREATE DATABASE CONNECTION --- //
-$env = parse_ini_file('.env');
-$db_name = $env['DBNAME'];
-$db_user = $env['DBUSER'];
-$db_password = $env['DBPASS'];
-$pdo = new PDO("mysql:host=localhost;port=3306;dbname=$db_name",$db_user,$db_password);
-
-
-
 // --- DEFINE VARIABLES FOR NUMBERS --- //
 $user = '';
 $codeblock = null;
 $numbersArr = array();
-// $ns_access = '';
+$ns_access = '';
 $_SESSION['access'] = "";
 global $numbersHTML;
 $_SESSION['numbersHTML'] = "";
@@ -49,7 +39,6 @@ $authResponse = curl_exec($auth);
 $err = curl_error($auth);
 
 $decodeAuth = json_decode($authResponse, true);
-// print("response from auth request: " . $authResponse);
 
 if (curl_errno($auth)) {
     error_log("Error on load. \n" . curl_error($auth));
@@ -58,6 +47,7 @@ if (curl_errno($auth)) {
 curl_close($auth);
 
 $_SESSION['access'] = $decodeAuth['access_token'];
+// var_dump($_SESSION);
 $ns_access = $decodeAuth['access_token'];
 
 
@@ -85,9 +75,7 @@ if (isset($_REQUEST['cookiename'])) {
       ]);
 
     $response = curl_exec($curl);
-    // $decodedResponse = json_decode($response, true);
 
-    // echo($response);
     $xml = new SimpleXMLElement($response);
 
     $_SESSION["domain"] = $xml->subscriber->domain;
@@ -95,11 +83,6 @@ if (isset($_REQUEST['cookiename'])) {
     $_SESSION["caller-id-number"] = $xml->subscriber->{'callid_nmbr'};
     $_SESSION["caller-id-name"] = $xml->subscriber->{'callid_name'};
     $_SESSION["login-username"] = $xml->subscriber->{'subscriber_login'};
-    // var_dump($_SESSION);
-
-
-    // error_log($_SESSION);
-    // var_dump($_SESSION);
 
     curl_close($curl);
 
@@ -142,12 +125,8 @@ function loadNumbers($domain) {
         ],
       ]);
 
-    // var_dump($headers);
 
     $response = curl_exec($numbersCURL);
-
-    // var_dump(json_decode($response, true));
-    // $decodeNumbers = json_decode($response, true);
 
     $numXML = new SimpleXMLElement($response);
 
@@ -172,53 +151,14 @@ function loadNumbers($domain) {
 
     curl_close($numbersCURL);
     $_SESSION['CIDNumbers'] = $numbersArr;
-    checkDB();
 };
-
-
-
-// --- CHECK DATABASE FOR USER'S AVAILABLE CID NUMBERS --- //
-function checkDB() {
-    $loggedUser = $_SESSION['user'];
-    $loggedDomain = $_SESSION['domain'];
-    global $pdo;
-
-    $stmt = $pdo->prepare('SELECT Users.UserID, Users.Name, Users.Extension, Domains.Name FROM Users JOIN Domains ON Users.DomainID=Domains.DomainID WHERE Users.Extension = :userext AND Domains.Name = :userdomain');
-    $stmt->execute(array(':userext' => $loggedUser, ':userdomain' => $loggedDomain));
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-
-    if ($row != false) {
-        // var_dump($row);
-
-        $_SESSION['user_id'] = $row['UserID'];
-        // var_dump($_SESSION['user_id']);
-        $usernumbers = array();
-
-        $stmt2 = $pdo->prepare('SELECT * FROM Numbers WHERE UserID = :user_id');
-        $stmt2->execute(array(':user_id' => $_SESSION['user_id']));
-
-        while ($row2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
-            $usernumbers[] = $row2['Number'];
-        }
-
-        $_SESSION['UserNumbers'] = $usernumbers;
-    } else {
-        print('No Data Found');
-    }
-}
 
 
 
 // --- ON SCREEN NUMBER LISTING --- //
 function listNumbers($arr) {
-    // var_dump($_SESSION['UserNumbers']);
-
     foreach ($arr as $number) {
-        if (in_array($number, $_SESSION['UserNumbers'])) {
-            echo ('<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ',' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>');
-        }
-        // $numbersHTML .= '<li onclick="updateNumber('. '`' . $_SESSION['access'] . '`' . ', ' . '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>';
+            echo ('<li onclick="updateNumber('. '`' . $_SESSION['login-username'] . '`' . ', ' . '`' . $_SESSION['caller-id-name'] . '`' . ', ' . '`' . $number . '`' . ')"><a class="dropdown-item" value="'. $number . '">' . $number . '</a></li>');
     }
 }
 
@@ -273,3 +213,13 @@ function listNumbers($arr) {
 
     <script src="./updateCID.js"></script>
 </html>
+
+<?php
+
+session_unset();
+$_SESSION["access"] = $ns_access;
+// var_dump($_SESSION);
+
+// session_write_close();
+
+?>

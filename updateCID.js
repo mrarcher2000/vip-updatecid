@@ -1,30 +1,18 @@
 const numberDropdown = document.querySelector("#numberDropdown");
 const message = document.querySelector("#message");
+const tempAccessElement = document.querySelector("#tempAccessElement");
 
+// var access = "";
+// Test if webpage is loading button elements properly
 numberDropdown.addEventListener("click", function(e){
     e.preventDefault();
 
     console.log("Button Clicked!");
 });
 
-
-
-
-const updateNumber = async function (access, user, name, number) {
+const updateNumber = async function (user, name, number) {
     console.log("Update pending..." + `\n${user}, ${name}, ${number}`);
-    let response = await fetch("https://portal.crexendovip.com/ns-api/?object=subscriber&action=update", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${access}`
-        },
-
-        body: JSON.stringify({
-            "uid": `${user}`,
-            "callid_name": `${name}`,
-            "callid_nmbr": `${number}`
-        })
-    })
+    let response = await fetch(`./updateCID.php/?uid=${user}&callid_name=${name}&callid_nmbr=${number}`, {method: "POST", headers: {"Content-Type": "application/x-www-form-urlencoded"}})
     // .then((response) => response.json())
     .then((response) => {
         console.log(response);

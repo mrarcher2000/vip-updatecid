@@ -1,9 +1,26 @@
 <?php
+ini_set('session.cookie_samesite', 'None');
+session_set_cookie_params(['samesite' => 'None']);
 session_start();
 
-$access = $_SESSION["access"];
+// $access = $_SESSION["access"];
 
-if ( isset($_SESSION['access']) && isset($_REQUEST['uid']) ) {
+if (!$access) {
+    $referrerURL = $_SERVER['HTTP_REFERER'];
+    $splitURL = explode("&", $referrerURL);
+    error_log($splitURL[1]);
+    $splitURL2 = explode("=", $splitURL[1]);
+
+    error_log($splitURL2[0] . "\n" . $splitURL2[1]);
+
+    if ($splitURL2[0] == "cookie") {
+        $access = $splitURL2[1];
+    }
+};
+
+error_log($access);
+
+if ( isset($access) && isset($_REQUEST['uid']) ) {
     error_log("Starting updateCID request");
     $curl = curl_init();
 

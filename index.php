@@ -1,4 +1,6 @@
 <?php
+ini_set('session.cookie_samesite', 'None');
+session_set_cookie_params(['samesite' => 'None']);
 session_start();
 
 // --- DEFINE VARIABLES FOR NUMBERS --- //
@@ -65,12 +67,20 @@ if (isset($_REQUEST['cookiename'])) {
     $domain = $cookies[1];
     $user = $cookies[2];
 
+    error_log("cookies showing $domain and $user");
+
     $jwt_login = $_SESSION['jwt_user'];
 
-    if ("$user@$domain" !== $jwt_login) {
-        error_log($user . "@" . $domain . "does not equal $jwt_login");
+    if (strtoupper("$user@$domain") != strtoupper($jwt_login)) {
+        error_log($user . "@" . $domain . " does not equal " . strtoupper($jwt_login));
         die("Invalid login credentials");
     }
+
+    $jwt_split_login = explode("@", $jwt_login);
+    $user = $jwt_split_login[0];
+    $domain = $jwt_split_login[1];
+
+    error_log("jwt login is showing : $domain and $user");
     
 
     $curl = curl_init();
@@ -85,13 +95,15 @@ if (isset($_REQUEST['cookiename'])) {
         CURLOPT_POSTFIELDS => "{\n\t\"user\": \"${user}\",\n\t\"domain\": \"${domain}\"\n}",
         CURLOPT_HTTPHEADER => [
           "Authorization: ${ns_access}",
-          "Content-Type: application/json"
+          "Content-Type: application/json",
+          "Accept: application/xml"
         ],
       ]);
 
     $response = curl_exec($curl);
+    
 
-    $xml = new SimpleXMLElement($response);
+    $xml = new SimpleXMLElement(strval($response));
 
     $_SESSION["domain"] = $xml->subscriber->domain;
     $_SESSION["user"] = $xml->subscriber->user;
@@ -99,6 +111,7 @@ if (isset($_REQUEST['cookiename'])) {
     $_SESSION["caller-id-name"] = $xml->subscriber->{'callid_name'};
     $_SESSION["login-username"] = $xml->subscriber->{'subscriber_login'};
 
+    // var_dump($xml);
     curl_close($curl);
 
     loadNumbers($_SESSION['domain']);
@@ -233,7 +246,6 @@ function listNumbers($arr) {
 
 session_unset();
 $_SESSION["access"] = $ns_access;
-// var_dump($_SESSION);
 
 // session_write_close();
 

@@ -22,7 +22,7 @@ if ( isset($_SESSION['access']) && isset($_REQUEST['uid']) ) {
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => "{\n\t\"uid\": \"$uid\",\n\t\"callid_name\": \"$callid_name\",\n\t\"callid_nmbr\": \"$callid_nmbr\"\n}",
         CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer $access",
+            "Authorization: $access",
             "Content-Type: application/json"
         ],
     ]);

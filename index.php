@@ -22,40 +22,55 @@ error_log("Page accessed by $USERIPADDRESS");
 
 
 // --- NETSAPIENS AND VIP AUTHORIZATION --- //
-$auth = curl_init();
 
-curl_setopt_array($auth, [
-    CURLOPT_URL => "https://crexendo-core-031-dfw.cls.iaas.run/ns-api/oauth2/token/?grant_type=password&client_id=archertest&client_secret=90056b1f11f8c87fff30fd1b5acafd04&username=anicholson%40crexendo.com&password=Crexendo2022!",
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => "",
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 30,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => "POST",
-    CURLOPT_POSTFIELDS => "",
-]);
+if (isset($_REQUEST['cookie'])) {
+    $jwt = $_REQUEST['cookie'];
 
-$authResponse = curl_exec($auth);
-$err = curl_error($auth);
+    $auth = curl_init();
 
-$decodeAuth = json_decode($authResponse, true);
+    curl_setopt_array($auth, [
+        CURLOPT_URL => "https://portal.crexendovip.com/ns-api/v2/jwt",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_CUSTOMREQUEST => "GET",
+        CURLOPT_POSTFIELDS => "",
+        CURLOPT_HTTPHEADER => [
+            "Authorization: $jwt",
+            "Content-Type: application/json"
+        ]
+    ]);
 
-if (curl_errno($auth)) {
-    error_log("Error on load. \n" . curl_error($auth));
-};
 
-curl_close($auth);
+    $authResponse = curl_exec($auth);
+    $err = curl_error($auth);
 
-$_SESSION['access'] = $decodeAuth['access_token'];
-// var_dump($_SESSION);
-$ns_access = $decodeAuth['access_token'];
+    $decodeAuth = json_decode($authResponse, true);
 
+    if (curl_errno($auth)) {
+        error_log("Error confirming JWT. \n" . curl_error($auth));
+    };
+    curl_close($auth);
+
+
+    $_SESSION['jwt_user'] = $decodeAuth['login'];
+    $_SESSION['access'] = $jwt;
+    $ns_access = $jwt;
+}
 
 // CHECK FOR NSTOKEN IN URL AND PULL USER'S DOMAIN
 if (isset($_REQUEST['cookiename'])) {
     $cookies = explode("-", $_REQUEST['cookiename']);
     $domain = $cookies[1];
     $user = $cookies[2];
+
+    $jwt_login = $_SESSION['jwt_user'];
+
+    if ("$user@$domain" !== $jwt_login) {
+        error_log($user . "@" . $domain . "does not equal $jwt_login");
+        die("Invalid login credentials");
+    }
     
 
     $curl = curl_init();
@@ -69,7 +84,7 @@ if (isset($_REQUEST['cookiename'])) {
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => "{\n\t\"user\": \"${user}\",\n\t\"domain\": \"${domain}\"\n}",
         CURLOPT_HTTPHEADER => [
-          "Authorization: Bearer ${ns_access}",
+          "Authorization: ${ns_access}",
           "Content-Type: application/json"
         ],
       ]);
@@ -121,7 +136,7 @@ function loadNumbers($domain) {
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_POSTFIELDS => "{\n\t\"dialplan\":\"DID Table\",\n\t\"dest_domain\": \"${domain}\"\n}",
         CURLOPT_HTTPHEADER => [
-          "Authorization: Bearer ${ns_access}"
+          "Authorization: ${ns_access}"
         ],
       ]);
 
